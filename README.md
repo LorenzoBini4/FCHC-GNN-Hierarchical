@@ -29,7 +29,7 @@ git clone https://github.com/LorenzoBini4/FCHC-GNN-Hierarchical.git
 cd FCHC-GNN-Hierarchical
 ```
 
-Set-up conda `enviroment.yaml` file:
+Set-up conda `environment.yaml` file:
 ```bash
 conda env create -f environment.yaml
 conda activate fchc-gnn
