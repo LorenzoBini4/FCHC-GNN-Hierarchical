@@ -1,4 +1,4 @@
-# FCHC-GNNs: Hierarchical Graph Neural Networks for Flow Cytometry Prediction
+# FCHC-GNN: Hierarchical Graph Neural Networks for Flow Cytometry Prediction
 This repository contains the official implementation of our paper titled "Injecting Hierarchical Biological Priors into Graph Neural Networks for Flow Cytometry Prediction" accepted at the ICML 2024 Workshop on Accessible and Efficient Foundation Models for Biological Discovery.
 
 ## Overview
