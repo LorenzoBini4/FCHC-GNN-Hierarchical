@@ -29,6 +29,11 @@ git clone https://github.com/LorenzoBini4/FCHC-GNN-Hierarchical.git
 cd FCHC-GNN-Hierarchical
 ```
 
+Install the requirements:
+```
+pip install -r requirements.txt
+```
+
 ### Usage
 To train and evaluate the FCHC-GNN model, simply run the following command:
 ```
