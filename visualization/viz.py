@@ -73,7 +73,7 @@ def visualize(h, color, legend_labels, cmap_name="tab10"):
 a = set(data7.yy)
 a = {x: i for i, x in enumerate(a)}
 color = [a[x] for x in data7.yy]
-legend_labels = ['Neutrophils', 'CD8 T Cells', 'Lambda Pos', 'NK Cells', 'Kappa Pos', 'Monocytes', 'CD4 T Cells'] # must be adapted to every patients. Not always the same order.
+legend_labels = ['Neutrophils', 'CD8 T Cells', 'Lambda Pos', 'NK Cells', 'Kappa Pos', 'Monocytes', 'CD4 T Cells'] 
 
 #visualize(z, color=color, legend_labels=legend_labels)
 visualize(out, color=color, legend_labels=legend_labels)
