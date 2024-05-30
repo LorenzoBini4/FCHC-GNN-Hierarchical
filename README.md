@@ -29,7 +29,13 @@ git clone https://github.com/LorenzoBini4/FCHC-GNN-Hierarchical.git
 cd FCHC-GNN-Hierarchical
 ```
 
-Install the requirements:
+Set-up conda `enviroment.yaml` file:
+```bash
+conda env create -f environment.yaml
+conda activate fchc-gnn
+```
+
+Alternatively, install the requirements:
 ```
 pip install -r requirements.txt
 ```
