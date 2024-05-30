@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ### Usage
 To train, validate, and test the FCHC-GNN model on the deep hierarchy experiments, run the following command:
 ```
-python deep-hc.sh 
+bash deep-hc.sh 
 ```
 
 While for training, validation, and testing of the FCHC-GNN model on the shallow hierarchy ablation experiments, run the following command:
