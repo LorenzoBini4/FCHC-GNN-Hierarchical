@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --job-name deep-HCFCGNN         # this is a parameter to help you sort your job when listing it
+#SBATCH --job-name deepFCHC-GNN         # this is a parameter to help you sort your job when listing it
 #SBATCH --error run.e%j     # optional. By default a file slurm-{jobid}.out will be created
 #SBATCH --output run.o%j      # optional. By default the error and output files are merged
 #SBATCH --ntasks 1                    # number of tasks in your job. One by default
