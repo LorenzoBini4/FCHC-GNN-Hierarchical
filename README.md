@@ -53,6 +53,3 @@ If you find our work useful in your research, please consider citing our paper:
 }
 ```
 We welcome contributions from the community! If you encounter any issues or have suggestions for improvements, please open an issue or submit a pull request. For more details, please refer to our Contributing Guidelines.
-
-Citation
-
