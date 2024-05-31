@@ -14,6 +14,7 @@ import torch.nn as nn
 import argparse
 import sys
 from model.shallow_model import *
+from utils.fchc-train import *
 from tqdm import tqdm
 
 torch.cuda.empty_cache()
@@ -34,13 +35,6 @@ PRINT_STATEMENT = True
 
 device_string = "cuda" if torch.cuda.is_available() else "cpu"
 device = torch.device(device_string)
-
-class ClearCache:
-    def __enter__(self):
-        torch.cuda.empty_cache()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        torch.cuda.empty_cache()
 
 torch.cuda.empty_cache()
 if __name__ == "__main__": 
@@ -78,37 +72,6 @@ class MyGraphDataset(Dataset):
         return self.data_list[idx]    
 
 with ClearCache():
-    # One training epoch for GNN model.
-    def train(train_loader, model, optimizer, device): #, class_weights_tensor)
-        model.train()
-        pbar = tqdm(train_loader, desc="Training")
-        for batch_idx, data in enumerate(pbar):
-            data = data.to(device)
-            optimizer.zero_grad()
-            output = model(data)
-            #current_weights = class_weights_tensor[batch_idx]
-            #criterion = nn.NLLLoss(weight=current_weights)
-            criterion = nn.NLLLoss()
-            loss = criterion(output, data.y)
-            loss.backward()
-            optimizer.step()
-            pbar.set_postfix({'Loss': loss.item()})
-        #return output
-
-    # Get acc. of GNN model.
-    def val(loader, model, device):
-        with torch.no_grad():
-            model.eval()
-            correct = 0
-            pbar = tqdm(loader, desc="Validation")
-            for data in pbar:
-                data = data.to(device)
-                output = model(data)
-                pred = output.max(dim=1)[1]
-                correct += pred.eq(data.y).sum().item()/len(pred)
-                pbar.set_postfix({'Accuracy': correct / len(loader.dataset)})
-            return correct / len(loader.dataset)
-
     def gnn_evaluation(gnn, max_num_epochs, batch_size, start_lr, num_repetitions, graph_path, min_lr=0.0000001, factor=0.05, patience=5, all_std=True):
         dataset = MyGraphDataset(num_samples=len(torch.load(graph_path)), graph_path=graph_path).shuffle()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -149,8 +112,8 @@ with ClearCache():
                 for epoch in range(1, max_num_epochs + 1):
                     lr = scheduler.optimizer.param_groups[0]['lr']
                     torch.cuda.empty_cache()
-                    train(train_loader, model, optimizer, device) #, class_weights_tensor)
-                    val_acc = val(val_loader, model, device)
+                    train_shallow(train_loader, model, optimizer, device) #, class_weights_tensor)
+                    val_acc = val_shallow(val_loader, model, device)
                     scheduler.step(val_acc)
 
                     if val_acc > best_val_acc:
