@@ -46,13 +46,6 @@ R = torch.tensor(R)
 #Transpose to get the descendants for each node 
 R = R.transpose(1, 0)
 
-class ClearCache:
-    def __enter__(self):
-        torch.cuda.empty_cache()
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        torch.cuda.empty_cache()
-    
 data_FC = torch.load(INPUT_GRAPH) 
 total_count=[]
 for j in range(19):  
@@ -94,9 +87,9 @@ class GATLayer(nn.Module):
         x = self.conv(x, edge_index)
         return x
 
-class HCGAT(nn.Module):
+class FCHCGAT(nn.Module):
     def __init__(self,R):
-        super(HCGAT, self).__init__()
+        super(FCHCGAT, self).__init__()
         self.R = R
         self.nb_layers = 2
         self.num_heads = 2 # 2
@@ -139,9 +132,9 @@ class HCGAT(nn.Module):
         return constrained_out
 
 ############################################## HCSAGE ########################################################
-class HCSAGE(nn.Module):
+class FCHCSAGE(nn.Module):
     def __init__(self, R):
-        super(HCSAGE, self).__init__()
+        super(FCHCSAGE, self).__init__()
         self.R = R
         self.nb_layers = 2
         self.hidden_dim = 64
@@ -197,9 +190,9 @@ class FullyConnectedLayer(nn.Module):
     def forward(self, x):
         return F.relu(self.fc(x))
     
-class HCDNN(nn.Module):
+class FCHCDNN(nn.Module):
     def __init__(self,R):
-        super(HCDNN, self).__init__()
+        super(FCHCDNN, self).__init__()
         self.R = R
         self.nb_layers = 2
         self.hidden_dim = 128
@@ -266,9 +259,9 @@ class GNNLayer(MessagePassing):
 
         return x_j * norm.view(-1, 1)
 
-class HCGNN(nn.Module):
+class FCHCGNN(nn.Module):
     def __init__(self,R):
-        super(HCGNN, self).__init__()
+        super(FCHCGNN, self).__init__()
         self.R = R
         self.nb_layers = 2
         self.hidden_dim = 32
@@ -309,9 +302,9 @@ class HCGNN(nn.Module):
         return constrained_out
 
 ############################################## HCGN ########################################################
-class HCGCN(nn.Module):
+class FCHCGCN(nn.Module):
     def __init__(self, R):
-        super(HCGCN, self).__init__()
+        super(FCHCGCN, self).__init__()
         self.R = R
         self.nb_layers = 2
         self.hidden_dim = 64
