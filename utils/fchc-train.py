@@ -1,3 +1,12 @@
+import torch
+
+class ClearCache:
+    def __enter__(self):
+        torch.cuda.empty_cache()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        torch.cuda.empty_cache()
+        
 # One training epoch for FCHC-GNN plug-in module.
 with ClearCache():
     def train(train_loader, model, optimizer, device, criterion):
