@@ -11,6 +11,7 @@ import random
 import os
 from tqdm import tqdm
 from model.hc_model import *
+from utils.fchc-train import *
 
 # Set seeds for reproducibility
 seed_value = 77
