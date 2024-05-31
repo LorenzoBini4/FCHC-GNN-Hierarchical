@@ -7,7 +7,7 @@ class ClearCache:
     def __exit__(self, exc_type, exc_value, traceback):
         torch.cuda.empty_cache()
         
-# One training epoch for FCHC-GNN plug-in module.
+# One training epoch for the FCHC-GNN plug-in module.
 with ClearCache():
     def train_deep(train_loader, model, optimizer, device, criterion):
         model.train()
@@ -24,7 +24,7 @@ with ClearCache():
             loss.backward()
             optimizer.step()
 
-# Get acc. of GNN model.
+# Get acc. of FCHC-GNN model.
 with ClearCache():
     with torch.no_grad():
         def val_deep(loader, model, device):
@@ -38,8 +38,8 @@ with ClearCache():
             return correct / len(loader.dataset)
 
 with ClearCache():
-    # One training epoch for GNN model.
-    def train_shallow(train_loader, model, optimizer, device): #, class_weights_tensor)
+    # One training epoch for the FCHC-GNN model.
+    def train_shallow(train_loader, model, optimizer, device):
         model.train()
         pbar = tqdm(train_loader, desc="Training")
         for batch_idx, data in enumerate(pbar):
@@ -51,9 +51,8 @@ with ClearCache():
             loss.backward()
             optimizer.step()
             pbar.set_postfix({'Loss': loss.item()})
-        #return output
 
-    # Get acc. of GNN model.
+    # Get acc. of FCHC-GNN model.
     def val_shallow(loader, model, device):
         with torch.no_grad():
             model.eval()
@@ -66,4 +65,3 @@ with ClearCache():
                 correct += pred.eq(data.y).sum().item()/len(pred)
                 pbar.set_postfix({'Accuracy': correct / len(loader.dataset)})
             return correct / len(loader.dataset)
-
