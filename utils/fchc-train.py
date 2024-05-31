@@ -9,7 +9,7 @@ class ClearCache:
         
 # One training epoch for FCHC-GNN plug-in module.
 with ClearCache():
-    def train(train_loader, model, optimizer, device, criterion):
+    def train_deep(train_loader, model, optimizer, device, criterion):
         model.train()
         for data in tqdm(train_loader, desc='Training'):
             data = data.to(device)
@@ -27,7 +27,7 @@ with ClearCache():
 # Get acc. of GNN model.
 with ClearCache():
     with torch.no_grad():
-        def val(loader, model, device):
+        def val_deep(loader, model, device):
             model.eval()
             correct = 0
             for data in tqdm(loader, desc='Validation'):
@@ -36,3 +36,34 @@ with ClearCache():
                 predss = constrained_output.data > 0.4
                 correct += (predss == data.y.byte()).sum() / (predss.shape[0] * predss.shape[1])
             return correct / len(loader.dataset)
+
+with ClearCache():
+    # One training epoch for GNN model.
+    def train_shallow(train_loader, model, optimizer, device): #, class_weights_tensor)
+        model.train()
+        pbar = tqdm(train_loader, desc="Training")
+        for batch_idx, data in enumerate(pbar):
+            data = data.to(device)
+            optimizer.zero_grad()
+            output = model(data)
+            criterion = nn.NLLLoss()
+            loss = criterion(output, data.y)
+            loss.backward()
+            optimizer.step()
+            pbar.set_postfix({'Loss': loss.item()})
+        #return output
+
+    # Get acc. of GNN model.
+    def val_shallow(loader, model, device):
+        with torch.no_grad():
+            model.eval()
+            correct = 0
+            pbar = tqdm(loader, desc="Validation")
+            for data in pbar:
+                data = data.to(device)
+                output = model(data)
+                pred = output.max(dim=1)[1]
+                correct += pred.eq(data.y).sum().item()/len(pred)
+                pbar.set_postfix({'Accuracy': correct / len(loader.dataset)})
+            return correct / len(loader.dataset)
+
