@@ -17,7 +17,6 @@ from model.shallow_model import *
 from utils.fchc-train import *
 from tqdm import tqdm
 
-torch.cuda.empty_cache()
 # Set seeds for reproducibility
 seed_value = 77
 random.seed(seed_value)
@@ -32,11 +31,9 @@ torch.cuda.manual_seed_all(seed_value)
 
 PRINT_MEMORY = False
 PRINT_STATEMENT = True
-
 device_string = "cuda" if torch.cuda.is_available() else "cpu"
 device = torch.device(device_string)
 
-torch.cuda.empty_cache()
 if __name__ == "__main__": 
     print(sys.argv)
     parser = argparse.ArgumentParser(description="Process arguments")
@@ -63,7 +60,6 @@ class MyGraphDataset(Dataset):
         super(MyGraphDataset, self).__init__(transform, pre_transform)
         self.num_samples = num_samples
         self.data_list = torch.load(graph_path)
-        #self.class_weights = class_weights_tensor
 
     def len(self):
         return self.num_samples
