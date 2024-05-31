@@ -14,7 +14,6 @@ import torch.nn as nn
 import argparse
 import sys
 from model.shallow_model import *
-from utils.fchc-train import *
 from tqdm import tqdm
 
 torch.cuda.empty_cache()
@@ -54,8 +53,6 @@ if __name__ == "__main__":
     parser.add_argument('--dropout', type=float, default=0.2, help='Dropout probability')
     parser.add_argument('--in_heads', type=int, default=8, help='Number of in heads (for GAT)')
     parser.add_argument('--out_heads', type=int, default=8, help='Number of out heads (for GAT)')
-    #parser.add_argument('--input_dim', type=int, help='Input dimension for GNN models')
-    #parser.add_argument('--output_dim', type=int, help='Output dimension for GNN models')
     parser.add_argument('--max_num_epochs', type=int, default=1000, help='Maximum number of epochs')
     parser.add_argument('--start_lr', type=float, default=0.000001, help='Initial learning rate')
     parser.add_argument('--num_repetitions', type=int, default=4, help='Number of repetitions')
@@ -66,9 +63,6 @@ label0_count=[]
 for j in range(19):  
     df = pd.read_csv(f"{INPUT_PATH}/Case_{j+1}.csv") 
     label0_count.append(len(df))
-
-#class_weights_tensor = get_class_weights_tensor(args.graph_path)
-#class_weights_tensor = [weights.to(device) for weights in class_weights_tensor]
     
 class MyGraphDataset(Dataset):
     def __init__(self, num_samples, graph_path, transform=None, pre_transform=None):
