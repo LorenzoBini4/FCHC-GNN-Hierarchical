@@ -14,6 +14,7 @@ import torch.nn as nn
 import argparse
 import sys
 from model.shallow_model import *
+from utils.fchc-train import *
 from tqdm import tqdm
 
 torch.cuda.empty_cache()
