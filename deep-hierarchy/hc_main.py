@@ -58,9 +58,9 @@ def gnn_evaluation(gnn, max_num_epochs, batch_size, start_lr, num_repetitions, m
             for epoch in range(1, max_num_epochs + 1):
                 lr = scheduler.optimizer.param_groups[0]['lr']
                 torch.cuda.empty_cache()
-                train(train_loader, model, optimizer, device, criterion)
+                train_deep(train_loader, model, optimizer, device, criterion)
                 torch.cuda.empty_cache()
-                val_acc = val(val_loader, model, device)
+                val_acc = val_deep(val_loader, model, device)
                 scheduler.step(val_acc)
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
@@ -73,7 +73,7 @@ def gnn_evaluation(gnn, max_num_epochs, batch_size, start_lr, num_repetitions, m
                             early_stopping_patience))
                         break
 
-            torch.save(best_model, 'best_gat.pt')
+            torch.save(best_model, 'best_fchcgnn.pt')
             # Evaluate on the entire test set
             with torch.no_grad():
                 model.eval()
@@ -216,7 +216,7 @@ max_num_epochs=200
 batch_size=1
 start_lr=0.001
 num_repetitions=4
-patient_dict=gnn_evaluation(HCGAT, max_num_epochs, batch_size, start_lr, num_repetitions, all_std=True)
+patient_dict=gnn_evaluation(FCHCGAT, max_num_epochs, batch_size, start_lr, num_repetitions, all_std=True)
 
 # Initialize a list to store the ratios for each label across all patients
 average_ratio_per_label = []
