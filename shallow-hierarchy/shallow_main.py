@@ -152,7 +152,7 @@ with ClearCache():
         return patient_dict
 
     def main(graph_path):
-        patient_dict = gnn_evaluation(GNNModel, args.max_num_epochs, batch_size=1, start_lr=args.start_lr, num_repetitions=args.num_repetitions, graph_path=graph_path)
+        patient_dict = gnn_evaluation(FCHCGNN, args.max_num_epochs, batch_size=1, start_lr=args.start_lr, num_repetitions=args.num_repetitions, graph_path=graph_path)
         average_ratio_per_label = []
         for key in patient_dict.keys():
                 idx = patient_dict[key]['f1'].index(max(patient_dict[key]['f1']))
