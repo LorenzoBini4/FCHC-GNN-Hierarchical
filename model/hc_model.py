@@ -239,6 +239,7 @@ class HCDNN(nn.Module):
             constrained_out = get_constr_out(x, self.R ) 
         return constrained_out
 
+############################################## HCGNN ########################################################
 class GNNLayer(MessagePassing):
     def __init__(self, input_dim, output_dim):
         super(GNNLayer, self).__init__(aggr='add')  
@@ -265,7 +266,6 @@ class GNNLayer(MessagePassing):
 
         return x_j * norm.view(-1, 1)
 
-############################################## HCGNN ########################################################
 class HCGNN(nn.Module):
     def __init__(self,R):
         super(HCGNN, self).__init__()
