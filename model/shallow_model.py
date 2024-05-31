@@ -5,9 +5,9 @@ from torch_geometric.nn import GATConv,SAGEConv, GCNConv
 import torch.nn as nn
 import argparse
 
-class GNNModel(torch.nn.Module):
+class FCHCGNN(torch.nn.Module):
     def __init__(self, input_dim, output_dim, args):
-        super(GNNModel, self).__init__()
+        super(FCHCGNN, self).__init__()
         self.num_layers = args.num_layers
         self.hidden_features = args.hidden_features
         self.dropout = args.dropout
