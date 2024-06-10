@@ -16,7 +16,7 @@ As shown in the figure below, by encoding known hierarchical (HC) relationships 
 - **Improved Performance:** Extensive experiments on our real-world FC dataset demonstrate significant performance gains over strong baselines that do not leverage hierarchical constraints.
 - **Generalizability:** We validate the generality of our FCHC-GNN module by conducting experiments on public datasets like ImageNet, showcasing its broad applicability to domains with hierarchical class structures.
 
-![t-SNE Visualization of Cellular Data](figures/tsne7_white.png)
+![t-SNE Visualization of Cellular Data](figures/tSNE_7_white.png)
 
 _Figure_: Patient 7 has been randomly picked for visualization purposes. The t-SNE plot illustrates the effectiveness of our FCHC-GNN in capturing the hierarchical relationships among different cell types, clearly separating the clusters according to their functional classes.
 
