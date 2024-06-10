@@ -44,7 +44,7 @@ pip install -r requirements.txt
 ```
 
 ### Usage
-To train, validate, and test the FCHC-GNN model on the deep hierarchy experiments, run the following command:
+To train, validate, and test the FCHC-GNN model on the deep hierarchy experiments, run the following command where we rely on Slurm job scheduling system:
 ```
 bash deep-hc.sh 
 ```
