@@ -18,7 +18,7 @@ As shown in the diagramm below, by encoding known hierarchical (HC) relationship
 
 ![t-SNE Visualization of Cellular Data](figures/tSNE_7_white.png)
 
-_Figure 1_: Patient 7 has been randomly picked for visualization purposes. The t-SNE plot illustrates the effectiveness of our FCHC-GNN in capturing the hierarchical relationships among different cell types, clearly separating the clusters according to their functional classes.
+_Figure 1_: Patient 7 has been randomly picked for visualization purposes. The t-SNE plot illustrates the effectiveness of our FCHC-GNN module in capturing the hierarchical relationships among different cell types, clearly separating the clusters according to their functional classes, where embeddings of the cell populations of medical interest has been plotted.
 
 ## Getting Started
 
