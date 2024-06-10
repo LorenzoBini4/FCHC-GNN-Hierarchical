@@ -3,10 +3,39 @@ This repository contains the official implementation of our paper titled "Inject
 
 ## Overview
 Flow cytometry (FC) is a powerful technology that enables rapid multi-parametric analysis of single cells in solution. However, the complex hierarchical relationships and neighborhood interactions inherent in cellular processes pose significant challenges for traditional flat data representations. Our work proposes a novel hierarchical Graph Neural Network (GNN) framework, termed FCHC-GNN, that injects structured biological priors to enhance multi-class prediction on FC cellular data.
-By encoding known hierarchical relationships between cell types and functional classes, our model effectively captures the rich dependencies innate to biological domains while operating on a tabular input representation. Extensive experiments across our real-world FC dataset demonstrate substantially improved performance over strong baselines that fail to leverage such hierarchical constraints.
 
-By encoding known hierarchical relationships between cell types and functional classes, our model effectively captures the rich dependencies innate to biological domains while operating on a tabular input representation. Extensive experiments across our real-world FC dataset demonstrate substantially improved performance over strong baselines that fail to leverage such hierarchical constraints.
-
+\begin{figure}[ht]
+\vskip 0.2in
+\begin{center}
+\centerline{\scalebox{0.8}{\begin{forest}
+  for tree={
+    edge={->, thick},
+    l=1.5cm
+  }
+  [Total cell population
+    [\textcolor{blue}{CD45 pos}
+      [\textcolor{blue}{Lymphocytes}
+        [\textcolor{blue}{B cells}
+          [\textcolor{mygreen}{Lambda pos}]
+          [\textcolor{mygreen}{Kappa pos}]
+        ]
+        [\textcolor{mygreen}{NK cells}]
+        [\textcolor{blue}{T cells}
+          [\textcolor{mygreen}{CD8 T cells}]
+          [\textcolor{mygreen}{CD4 T cells}]
+        ]
+      ]
+      [\textcolor{mygreen}{Monocytes}]
+      [\textcolor{mygreen}{Neutrophils}]
+    ]
+    [\textcolor{mygreen}{CD45 neg}]
+  ]
+\end{forest}}}
+\caption{Depiction of our HC set up.}
+\label{fig:tree1}
+\end{center}
+\vskip -0.2in
+\end{figure} 
 By encoding known hierarchical relationships between cell types and functional classes, our model effectively captures the rich dependencies innate to biological domains while operating on a tabular input representation. Extensive experiments across our real-world FC dataset demonstrate substantially improved performance over strong baselines that fail to leverage such hierarchical constraints.
 
 ## Highlights
