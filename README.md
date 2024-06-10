@@ -55,7 +55,7 @@ bash shallow-hc.sh
 ```
 
 ### Visualization
-- `visualization/viz.py`: Visualization script to reproduce the [t-SNE](https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf?fbcl) embedding, plot the feature importance, the degrees visualization and the attention explainer for `best_FCHC-GAT.pt` models.
+- `visualization/viz.py`: Visualization script to reproduce the [t-SNE](https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf?fbcl) embedding, plot the feature importance, the degrees visualization and the attention explainer for `best_FCHC-GAT.pt` plug-in module.
 
 ## Citation & Contributing 
 If you find our work useful in your research, please consider citing our paper:
