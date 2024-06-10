@@ -73,7 +73,7 @@ class MyGraphDataset(Dataset):
     def get(self, idx):
         return self.data_list[idx]
 
-############################################## HCGAT ########################################################
+############################################## FCHC-GAT ########################################################
 class GATLayer(nn.Module):
     def __init__(self, input_dim, output_dim, num_heads,concat_param,dropout_param):
         super(GATLayer, self).__init__()
@@ -131,7 +131,7 @@ class FCHCGAT(nn.Module):
             constrained_out = get_constr_out(x, self.R )  
         return constrained_out
 
-############################################## HCSAGE ########################################################
+############################################## FCHC-SAGE ########################################################
 class FCHCSAGE(nn.Module):
     def __init__(self, R):
         super(FCHCSAGE, self).__init__()
@@ -175,7 +175,7 @@ class FCHCSAGE(nn.Module):
         return constrained_out
 
 
-############################################## HCDNN ########################################################
+############################################## FCHC-DNN ########################################################
 class FullyConnectedLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
         super(FullyConnectedLayer, self).__init__()
@@ -232,7 +232,7 @@ class FCHCDNN(nn.Module):
             constrained_out = get_constr_out(x, self.R ) 
         return constrained_out
 
-############################################## HCGNN ########################################################
+############################################## FCHC-GNN ########################################################
 class GNNLayer(MessagePassing):
     def __init__(self, input_dim, output_dim):
         super(GNNLayer, self).__init__(aggr='add')  
@@ -301,7 +301,7 @@ class FCHCGNN(nn.Module):
             constrained_out = get_constr_out(x, self.R )
         return constrained_out
 
-############################################## HCGN ########################################################
+############################################## FCHC-GCN ########################################################
 class FCHCGCN(nn.Module):
     def __init__(self, R):
         super(FCHCGCN, self).__init__()
