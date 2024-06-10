@@ -18,7 +18,7 @@ As shown in the diagramm below, by encoding known hierarchical (HC) relationship
 
 ![t-SNE Visualization of Cellular Data](figures/tSNE_7_white.png)
 
-_Figure 1_: Patient 7 has been randomly picked for visualization purposes, and the embeddings of cell populations of medical interest have been plotted. The t-SNE plot illustrates the effectiveness of our FCHC-GNN module in capturing the hierarchical relationships among different cell types, clearly separating the clusters according to their functional classes. 
+_Figure 1_: Patient 7 has been randomly picked for visualization purposes, and the embeddings of cell populations of medical interest have been plotted. The [t-SNE](https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf?fbcl) plot illustrates the effectiveness of our FCHC-GNN module in capturing the hierarchical relationships among different cell types, clearly separating the clusters according to their functional classes. 
 
 ## Getting Started
 
@@ -55,7 +55,7 @@ bash shallow-hc.sh
 ```
 
 ### Visualization
-- `visualization/viz.py`: Visualization script to reproduce the [t-SNE](https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf?fbcl) embedding, plot the feature importance, the degrees visualization and the attention explainer for `best_FCHC-GAT.pt` plug-in module.
+- `visualization/viz.py`: Visualization script to reproduce the t-SNE embedding, plot the feature importance, the degrees visualization and the attention explainer for `best_FCHC-GAT.pt` plug-in module.
 
 ## Citation & Contributing 
 If you find our work useful in your research, please consider citing our paper:
