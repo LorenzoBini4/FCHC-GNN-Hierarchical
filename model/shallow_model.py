@@ -22,9 +22,7 @@ class FCHCGNN(torch.nn.Module):
             self.conv = self.make_gcn_layers(input_dim, output_dim)
         elif args.model == 'DNN':
             self.conv = self.make_dnn_layers(input_dim, output_dim)
-        elif args.model == 'GNN':
-            self.conv = self.make_gnn_layers(input_dim, output_dim)
-    
+   
     def make_sage_layers(self, input_dim, output_dim):
         layers = []
         for i in range(self.num_layers):
