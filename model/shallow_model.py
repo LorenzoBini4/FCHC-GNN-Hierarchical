@@ -14,13 +14,13 @@ class FCHCGNN(torch.nn.Module):
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.args = args
-        if args.model == 'SAGE':
+        if args.model == 'FCHCSAGE':
             self.conv = self.make_sage_layers(input_dim, output_dim)
-        elif args.model == 'GAT':
+        elif args.model == 'FCHGAT':
             self.conv = self.make_gat_layers(input_dim, output_dim)
-        elif args.model == 'GCN':
+        elif args.model == 'FCHCGCN':
             self.conv = self.make_gcn_layers(input_dim, output_dim)
-        elif args.model == 'DNN':
+        elif args.model == 'FCHCDNN':
             self.conv = self.make_dnn_layers(input_dim, output_dim)
    
     def make_sage_layers(self, input_dim, output_dim):
