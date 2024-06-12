@@ -16,7 +16,7 @@ class FCHCGNN(torch.nn.Module):
         self.args = args
         if args.model == 'FCHCSAGE':
             self.conv = self.make_sage_layers(input_dim, output_dim)
-        elif args.model == 'FCHGAT':
+        elif args.model == 'FCHCGAT':
             self.conv = self.make_gat_layers(input_dim, output_dim)
         elif args.model == 'FCHCGCN':
             self.conv = self.make_gcn_layers(input_dim, output_dim)
