@@ -15,3 +15,6 @@ conda activate fchc-gnn
 ###################################
 nvidia-smi
 python -u -m shallow-hierarchy.shallow_main.py --model FCHCSAGE --num_layers 2 --hidden_features 64  --dropout 0.2  --start_lr 0.001 --max_num_epochs 200 --num_repetitions 4 --graph_path 'hc_graphs/HC7_shallowgraph.pt' 
+#python -u -m shallow-hierarchy.shallow_main.py --model FCHCSAGE --num_layers 2 --hidden_features 64  --dropout 0.2  --start_lr 0.001 --max_num_epochs 200 --num_repetitions 4 --graph_path 'hc_graphs/HC7_shallowgraph.pt' 
+#python -u -m shallow-hierarchy.shallow_main.py --model FCHCGCN --num_layers 2 --hidden_features 64  --dropout 0.2  --start_lr 0.001 --max_num_epochs 200 --num_repetitions 4 --graph_path 'hc_graphs/HC7_shallowgraph.pt' 
+#python -u -m shallow-hierarchy.shallow_main.py --model FCHCDNN --num_layers 2 --hidden_features 256  --dropout 0.2  --start_lr 0.001 --max_num_epochs 200 --num_repetitions 4 --graph_path 'hc_graphs/HC7_shallowgraph.pt' 
