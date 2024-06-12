@@ -14,4 +14,4 @@ eval "$(conda shell.bash hook)"
 conda activate fchc-gnn
 ###################################
 nvidia-smi
-python -u deep-hierarchy.hc_main.py --graph_path '/hc_graphs/HC7_graph.pt'
+python -u -m deep-hierarchy.hc_main.py --graph_path '/hc_graphs/HC7_graph.pt'
