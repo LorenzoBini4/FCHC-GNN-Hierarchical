@@ -48,7 +48,7 @@ To train, validate, and test the FCHC-GNN model on the deep hierarchy experiment
 ```
 bash deep-hc.sh 
 ```
-To change the FCHC plug-in module, you can pick one of those in `model/` and afterward type FCHCSAGE at line 219 in `deep-hierarchy/hc_main.py`, for example.
+To change the FCHC plug-in module, you can pick one of those in `model/hc_model.py` and afterward type the chosen one at *line 219* in `deep-hierarchy/hc_main.py`, for example.
 
 While for training, validation, and testing of the FCHC-GNN model on the shallow hierarchy ablation experiments, run the following command:
 ```
