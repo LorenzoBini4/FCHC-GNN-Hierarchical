@@ -4,7 +4,7 @@ This repository contains the official implementation of our paper titled "Inject
 ## Overview
 Flow cytometry (FC) is a powerful technology that enables rapid multi-parametric analysis of single cells in solution. However, the complex hierarchical relationships and neighborhood interactions inherent in cellular processes pose significant challenges for traditional flat data representations. Our work proposes a novel hierarchical Graph Neural Network (GNN) framework, termed FCHC-GNN, that injects structured biological priors to enhance multi-class prediction on FC cellular data.
 
-As shown in the diagramm below, by encoding known hierarchical (HC) relationships between cell types and functional classes, our model effectively captures the rich dependencies innate to biological domains while operating on a tabular input representation. Extensive experiments across our real-world FC dataset demonstrate substantially improved performance over strong baselines that fail to leverage such hierarchical constraints.
+As shown in the diagram below, by encoding known hierarchical (HC) relationships between cell types and functional classes, our model effectively captures the rich dependencies innate to biological domains while operating on a tabular input representation. Extensive experiments across our real-world FC dataset demonstrate substantially improved performance over strong baselines that fail to leverage such hierarchical constraints.
 
 ![hierarchy_structure](figures/hier.png) 
 
@@ -48,6 +48,7 @@ To train, validate, and test the FCHC-GNN model on the deep hierarchy experiment
 ```
 bash deep-hc.sh 
 ```
+To change the FCHC plug-in module, you can pick one of those in `model/` and afterward type FCHCSAGE at line 219 in `deep-hierarchy/hc_main.py`, for example.
 
 While for training, validation, and testing of the FCHC-GNN model on the shallow hierarchy ablation experiments, run the following command:
 ```
