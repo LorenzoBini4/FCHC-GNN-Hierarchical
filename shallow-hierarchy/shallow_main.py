@@ -16,6 +16,7 @@ import sys
 from model.shallow_model import *
 from utils.fchc-train import *
 from tqdm import tqdm
+import datatime
 
 # Set seeds for reproducibility
 seed_value = 77
@@ -103,7 +104,7 @@ with ClearCache():
                 best_val_acc = 0.0
                 best_model_state_dict = None
                 early_stopping_counter = 0
-                early_stopping_patience = 20
+                early_stopping_patience = 7
 
                 for epoch in range(1, max_num_epochs + 1):
                     lr = scheduler.optimizer.param_groups[0]['lr']
@@ -122,9 +123,14 @@ with ClearCache():
                         if early_stopping_counter >= early_stopping_patience:
                             print("Early stopping triggered. No improvement in validation accuracy for {} epochs.".format(early_stopping_patience))
                             break
+     
+                # Generate timestamp
+                timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
+                # Save model with timestamp
                 model.load_state_dict(best_model_state_dict)
-                torch.save(model.state_dict(), 'hc_bestflat_sage.pt')
+                torch.save(model.state_dict(), f'hc_bestflat_{timestamp}.pt')
+
                 # Evaluate on the entire test set
                 model.eval()
                 for data in test_loader:
