@@ -1,5 +1,5 @@
 import torch
-from torch_geometric.data import Dataset
+import torch.nn as nn
 from torch_geometric.nn import GATConv, SAGEConv, GCNConv, MessagePassing
 import pandas as pd
 import numpy as np 
@@ -8,9 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
-import argparse
-import sys
-import torch.nn as nn
 
 class ClearCache:
     def __enter__(self):
@@ -72,7 +69,9 @@ def get_constr_out(x, R):
     return final_out
 
 ############################################## FCHCGNN PLUG-IN MODULES ########################################################
-# Define GATLayer
+
+
+############################################################################################## Define FCHC-GAT plug-in module 
 class GATLayer(nn.Module):
     def __init__(self, input_dim, output_dim, num_heads, concat_param, dropout_param):
         super(GATLayer, self).__init__()
@@ -86,10 +85,9 @@ class GATLayer(nn.Module):
         x = self.conv(x, edge_index)
         return x
 
-# Define HCGAT
-class HCFCGAT(nn.Module):
+class FCHCGAT(nn.Module):
     def __init__(self, R, input_dim, output_dim, hidden_dim, num_heads, out_heads, num_layers, dropout):
-        super(HCFCGAT, self).__init__()
+        super(FCHCGAT, self).__init__()
         self.R = R
         self.num_layers = num_layers
         self.num_heads = num_heads
@@ -132,10 +130,10 @@ class HCFCGAT(nn.Module):
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-# Define HCSAGE
-class HCFCSAGE(nn.Module):
+############################################################################################## Define FCHC-SAGE plug-in module 
+class FCHCSAGE(nn.Module):
     def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
-        super(HCFCSAGE, self).__init__()
+        super(FCHCSAGE, self).__init__()
         self.R = R
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
@@ -176,7 +174,7 @@ class HCFCSAGE(nn.Module):
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-# Define HCDNN
+############################################################################################## Define FCHC-DNN plug-in module 
 class FullyConnectedLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
         super(FullyConnectedLayer, self).__init__()
@@ -191,9 +189,9 @@ class FullyConnectedLayer(nn.Module):
     def forward(self, x):
         return F.relu(self.fc(x))
 
-class HCFCDNN(nn.Module):
+class FCHCDNN(nn.Module):
     def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
-        super(HCFCDNN, self).__init__()
+        super(FCHCDNN, self).__init__()
         self.R = R
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
@@ -233,7 +231,7 @@ class HCFCDNN(nn.Module):
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-# Define HCGNN
+############################################################################################## Define FCHC-GNN plug-in module 
 class GNNLayer(MessagePassing):
     def __init__(self, input_dim, output_dim):
         super(GNNLayer, self).__init__(aggr='add')
@@ -258,9 +256,9 @@ class GNNLayer(MessagePassing):
 
         return x_j * norm.view(-1, 1)
 
-class HCFCGNN(nn.Module):
+class FCHCGNN(nn.Module):
     def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
-        super(HCFCGNN, self).__init__()
+        super(FCHCGNN, self).__init__()
         self.R = R
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
@@ -300,10 +298,10 @@ class HCFCGNN(nn.Module):
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-# Define HCGCN
-class HCFCGCN(nn.Module):
+############################################################################################## Define FCHC-GCN plug-in module 
+class FCHCGCN(nn.Module):
     def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
-        super(HCFCGCN, self).__init__()
+        super(FCHCGCN, self).__init__()
         self.R = R
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
@@ -343,4 +341,5 @@ class HCFCGCN(nn.Module):
         else:
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
+
 ############################################## FCHCGNN PLUG-IN MODULES ########################################################
