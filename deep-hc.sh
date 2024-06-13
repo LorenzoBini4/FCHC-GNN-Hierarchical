@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task 4
 #SBATCH --mem=32GB
 #SBATCH --partition=shared-gpu
-#SBATCH --gres=gpu:1 #,VramPerGpu:30G
-#SBATCH --time=0-07:14:59
+#SBATCH --gres=gpu:1
+#SBATCH --time=0-00:14:59
 #SBATCH --error=run%A.e
 #SBATCH --output=run%A.o
 
