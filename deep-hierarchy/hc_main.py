@@ -25,7 +25,7 @@ R = R.unsqueeze(0).to(device)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hyperparameter tuning for hierarchical HCFCGNN models")
     parser.add_argument("--graph_path", type=str, help="Path to the input graph file")
-    parser.add_argument('--model', type=str, required=True, choices=['HCFCGAT', 'HCFCSAGE', 'HCFCDNN', 'HCFCGNN', 'HCFCGCN'], help='Model to use')
+    parser.add_argument('--model', type=str, required=True, choices=['FCHCGAT', 'FCHCSAGE', 'FCHCDNN', 'FCHCGNN', 'FCHCGCN'], help='Model to use')
     parser.add_argument('--num_layers', type=int, default=2, help='Number of layers')
     parser.add_argument('--hidden_features', type=int, default=64, help='Number of hidden features')
     parser.add_argument('--dropout', type=float, default=0.2, help='Dropout rate')
@@ -101,7 +101,7 @@ with ClearCache():
                 num_patients = len(test_loader)
                 print(f"Number of patients in the test loader: {num_patients}")
 
-                if gnn.__name__ == 'HCFCGAT':
+                if gnn.__name__ == 'FCHCGAT':
                     model = gnn(R, input_dim, output_dim, hidden_dim=args.hidden_features,
                                 num_heads=args.num_heads, out_heads=args.out_heads, num_layers=args.num_layers,
                                 dropout=args.dropout).to(device)
@@ -278,16 +278,16 @@ with ClearCache():
         return patient_dict
 
     def main(graph_path, model_name, args):
-        if model_name == 'HCFCGAT':
-            model = HCFCGAT
-        elif model_name == 'HCFCSAGE':
-            model = HCFCSAGE
-        elif model_name == 'HCFCDNN':
-            model = HCFCDNN
-        elif model_name == 'HCFCGNN':
-            model = HCFCGNN
-        elif model_name == 'HCFCGCN':
-            model = HCFCGCN
+        if model_name == 'FCHCGAT':
+            model = FCHCGAT
+        elif model_name == 'FCHCSAGE':
+            model = FCHCSAGE
+        elif model_name == 'FCHCDNN':
+            model = FCHCDNN
+        elif model_name == 'FCHCGNN':
+            model = FCHCGNN
+        elif model_name == 'FCHCGCN':
+            model = FCHCGCN
         else:
             raise ValueError("Invalid model name")
 
