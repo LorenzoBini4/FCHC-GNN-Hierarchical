@@ -5,12 +5,14 @@ import torch.nn as nn
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
+import os
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import random
 import os
 from tqdm import tqdm
-from model.hc_model import *
+from hc_model_copy import *
 import argparse
+import time
 
 # Set seeds for reproducibility
 seed_value = 77
@@ -138,7 +140,13 @@ with ClearCache():
                                 early_stopping_patience))
                             break
 
-                torch.save(best_model, 'best_fchcgnn.pt')
+                # Generate timestamp
+                timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+                # Save best model with a unique name
+                model_name = f"best_FCHCGNN_{timestamp}.pt"
+                torch.save(best_model, model_name)
+                
                 # Evaluate on the entire test set
                 with torch.no_grad():
                     model.eval()
