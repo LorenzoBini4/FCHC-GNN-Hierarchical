@@ -100,9 +100,9 @@ with ClearCache():
                 for epoch in range(1, max_num_epochs + 1):
                     lr = scheduler.optimizer.param_groups[0]['lr']
                     torch.cuda.empty_cache()
-                    train(train_loader, model, optimizer, device, criterion)
+                    train_deep(train_loader, model, optimizer, device, criterion)
                     torch.cuda.empty_cache()
-                    val_acc = val(val_loader, model, device)
+                    val_acc = val_deep(val_loader, model, device)
                     scheduler.step(val_acc)
                     if val_acc > best_val_acc:
                         best_val_acc = val_acc
