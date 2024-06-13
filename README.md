@@ -55,7 +55,7 @@ bash shallow-hc.sh
 ```
 
 ### Visualization
-- `visualization/viz.py`: Visualization script to reproduce the t-SNE embedding, plot the feature importance, the degrees visualization and the attention explainer for our best FCHC plug-in modules saved under `best_pt/` directory.
+- `visualization/viz.py`: Visualization script to reproduce the t-SNE embedding, plot the feature importance, the degrees visualization and the attention explainer for our best FCHC plug-in modules saved under `best_pt/` directory (both for deep and shallows experiments).
 
 ## Citation & Contributing 
 If you find our work useful in your research, please consider citing our paper:
