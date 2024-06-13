@@ -5,12 +5,11 @@ import torch.nn as nn
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from torch_geometric.loader import DataLoader
-import os
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import random
 import os
 from tqdm import tqdm
-from hc_model_copy import *
+from model.hc_model import *
 import argparse
 
 # Set seeds for reproducibility
