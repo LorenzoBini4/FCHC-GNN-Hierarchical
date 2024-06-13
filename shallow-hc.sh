@@ -7,7 +7,7 @@
 #SBATCH --mem 32GB                   #####CPU is mutually exclusive with the one for GPUs.#sbatch --mem-per-cpu=16000 # in MB
 #SBATCH --partition shared-gpu         # the partition to use. By default debug-cpu. (shared-gpu)
 #SBATCH --gres=gpu:1 #,VramPerGpu:12G
-#SBATCH --time 0-11:59:59                  # maximum RUN time.
+#SBATCH --time 0-11:59:59                  # maximum RUN time of the partition.
 
 module load Anaconda3
 eval "$(conda shell.bash hook)"
