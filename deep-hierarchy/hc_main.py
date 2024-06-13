@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import random
 import os
 from tqdm import tqdm
+from utils.fchc-train import *
 from model.hc_model import *
 import argparse
 import time
