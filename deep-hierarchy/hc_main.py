@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import random
 import os
 from tqdm import tqdm
-from hc_model_copy import *
+from model.hc_model import *
 import argparse
 import time
 
@@ -57,32 +57,6 @@ for j in range(19):
     total_count.append(len(df))
         
 with ClearCache():
-    def train(train_loader, model, optimizer, device, criterion):
-        model.train()
-        for data in tqdm(train_loader, desc='Training'):
-            data = data.to(device)
-            optimizer.zero_grad()
-            output = model(data)
-            # MCLoss
-            constr_output = get_constr_out(output, R)
-            train_output = data.y * output.double()
-            train_output = get_constr_out(train_output, R)
-            train_output = (1 - data.y) * constr_output.double() + data.y * train_output
-            loss = criterion(train_output[:, data.to_eval[0]], data.y[:, data.to_eval[0]])
-            loss.backward()
-            optimizer.step()
-
-    with torch.no_grad():
-        def val(loader, model, device):
-            model.eval()
-            correct = 0
-            for data in tqdm(loader, desc='Validation'):
-                data = data.to(device)
-                constrained_output = model(data)
-                predss = constrained_output.data > 0.4
-                correct += (predss == data.y.byte()).sum() / (predss.shape[0] * predss.shape[1])
-            return correct / len(loader.dataset)    
-
     def gnn_evaluation(gnn, max_num_epochs, batch_size, start_lr, num_repetitions, graph_path, min_lr=0.000001, factor=0.05, patience=7, all_std=True):
         dataset = MyGraphDataset(num_samples=len(torch.load(graph_path)), graph_path=graph_path).shuffle()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
