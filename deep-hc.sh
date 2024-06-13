@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name HCFCGNN
+#SBATCH --job-name deepFCHC-GNN
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 4
 #SBATCH --mem=32GB
