@@ -1,6 +1,6 @@
 import torch
 from torch_geometric.data import Dataset
-from torch_geometric.nn import GATConv, SAGEConv, GCNConv
+from torch_geometric.nn import GATConv, SAGEConv, GCNConv, MessagePassing
 import pandas as pd
 import numpy as np 
 import networkx as nx
@@ -10,17 +10,21 @@ from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import add_self_loops, degree
 import argparse
 import sys
+import torch.nn as nn
 
-parser = argparse.ArgumentParser(description='Parse input graph')
-parser.add_argument('--graph_path', type=str, help='Path to the input graph file')
-args = parser.parse_args()
-print(sys.argv)
+class ClearCache:
+    def __enter__(self):
+        torch.cuda.empty_cache()
 
-INPUT_GRAPH = args.graph_path
+    def __exit__(self, exc_type, exc_value, traceback):
+        torch.cuda.empty_cache()
+
 INPUT_PATH = 'data_hierarchical'
-
 to_skip = ['root']
 ATTRIBUTE_class = "1,1_1,1_1_1,1_1_1_1,1_1_1_2,1_1_2,1_1_3,1_1_3_1,1_1_3_2,1_2,1_3,2"
+input_dim = 12
+output_dim= len(set(ATTRIBUTE_class.split(',')))+1
+
 g = nx.DiGraph()
 for branch in ATTRIBUTE_class.split(','):
     term = branch.split('_')
@@ -46,7 +50,13 @@ R = torch.tensor(R)
 #Transpose to get the descendants for each node 
 R = R.transpose(1, 0)
 
-data_FC = torch.load(INPUT_GRAPH) 
+class ClearCache:
+    def __enter__(self):
+        torch.cuda.empty_cache()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        torch.cuda.empty_cache()
+    
 total_count=[]
 for j in range(19):  
     df = pd.read_csv(f"{INPUT_PATH}/Case_{j+1}.csv", low_memory=False)
@@ -61,23 +71,12 @@ def get_constr_out(x, R):
     final_out, _ = torch.max(R_batch*c_out.double(), dim = 2)
     return final_out
 
-class MyGraphDataset(Dataset):
-    def __init__(self,  num_samples,transform=None, pre_transform=None):
-        super(MyGraphDataset, self).__init__(transform, pre_transform)
-        self.num_samples = num_samples
-        self.data_list = torch.load(INPUT_GRAPH)   
-
-    def len(self):
-        return self.num_samples
-
-    def get(self, idx):
-        return self.data_list[idx]
-
-############################################## FCHC-GAT ########################################################
+############################################## FCHCGNN PLUG-IN MODULES ########################################################
+# Define GATLayer
 class GATLayer(nn.Module):
-    def __init__(self, input_dim, output_dim, num_heads,concat_param,dropout_param):
+    def __init__(self, input_dim, output_dim, num_heads, concat_param, dropout_param):
         super(GATLayer, self).__init__()
-        self.conv = GATConv(input_dim, output_dim , heads=num_heads,concat=concat_param, dropout=dropout_param) 
+        self.conv = GATConv(input_dim, output_dim, heads=num_heads, concat=concat_param, dropout=dropout_param)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -87,27 +86,29 @@ class GATLayer(nn.Module):
         x = self.conv(x, edge_index)
         return x
 
-class FCHCGAT(nn.Module):
-    def __init__(self,R):
-        super(FCHCGAT, self).__init__()
+# Define HCGAT
+class HCFCGAT(nn.Module):
+    def __init__(self, R, input_dim, output_dim, hidden_dim, num_heads, out_heads, num_layers, dropout):
+        super(HCFCGAT, self).__init__()
         self.R = R
-        self.nb_layers = 2
-        self.num_heads = 2 # 2
-        self.out_head = 2 # 2
-        self.hidden_dim = 32 # 32
-        self.input_dim = 12
-        self.output_dim= len(set(ATTRIBUTE_class.split(',')))+1  # We do not evaluate the performance of the model on the 'roots' node
+        self.num_layers = num_layers
+        self.num_heads = num_heads
+        self.out_heads = out_heads
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+
         gat_layers = []
-        for i in range(self.nb_layers):
+        for i in range(self.num_layers):
             if i == 0:
-                gat_layers.append(GATLayer(self.input_dim, self.hidden_dim, self.num_heads,True,0.2))
-            elif i == self.nb_layers - 1:
-                gat_layers.append(GATLayer(self.hidden_dim*self.num_heads, self.output_dim, self.out_head, False,0.2))
+                gat_layers.append(GATLayer(self.input_dim, self.hidden_dim, self.num_heads, True, dropout))
+            elif i == self.num_layers - 1:
+                gat_layers.append(GATLayer(self.hidden_dim * self.num_heads, self.output_dim, self.out_heads, False, dropout))
             else:
-                gat_layers.append(GATLayer(self.hidden_dim*self.num_heads, self.hidden_dim, self.num_heads,True,0.2))
+                gat_layers.append(GATLayer(self.hidden_dim * self.num_heads, self.hidden_dim, self.num_heads, True, dropout))
         self.gat_layers = nn.ModuleList(gat_layers)
        
-        self.drop = nn.Dropout(0.2)
+        self.drop = nn.Dropout(dropout)
         self.sigmoid = nn.Sigmoid()
         self.f = nn.ReLU()
         self.reset_parameters()  # Initialize the weights
@@ -116,54 +117,11 @@ class FCHCGAT(nn.Module):
         for gat_layer in self.gat_layers:
             gat_layer.reset_parameters()
 
-    def forward(self, x, edge_index): # x, edge_index to allow feat_importance
-        #x, edge_index= data.x, data.edge_index
-        for i in range(self.nb_layers):
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+        for i in range(self.num_layers):
             x = self.gat_layers[i](x, edge_index)
-            if i != self.nb_layers - 1:
-                x = self.f(x)
-                x = self.drop(x)
-            else:
-                x= self.sigmoid(x)
-        if self.training:
-            constrained_out = x
-        else:
-            constrained_out = get_constr_out(x, self.R )  
-        return constrained_out
-
-############################################## FCHC-SAGE ########################################################
-class FCHCSAGE(nn.Module):
-    def __init__(self, R):
-        super(FCHCSAGE, self).__init__()
-        self.R = R
-        self.nb_layers = 2
-        self.hidden_dim = 64
-        self.input_dim = 12
-        self.output_dim = len(set(ATTRIBUTE_class.split(','))) + 1  # We do not evaluate the performance of the model on the 'roots' node
-        sage_layers = []
-        for i in range(self.nb_layers):
-            if i == 0:
-                sage_layers.append(SAGEConv(self.input_dim, self.hidden_dim))
-            elif i == self.nb_layers - 1:
-                sage_layers.append(SAGEConv(self.hidden_dim, self.output_dim))
-            else:
-                sage_layers.append(SAGEConv(self.hidden_dim, self.hidden_dim))
-        self.sage_layers = nn.ModuleList(sage_layers)
-
-        self.drop = nn.Dropout(0.2)
-        self.sigmoid = nn.Sigmoid()
-        self.f = nn.ReLU()
-        self.reset_parameters()  # Initialize the weights
-
-    def reset_parameters(self):
-        for sage_layer in self.sage_layers:
-            sage_layer.reset_parameters()
-
-    def forward(self, data): # x, edge_index to allow feat_importance
-        x, edge_index = data.x, data.edge_index 
-        for i in range(self.nb_layers):
-            x = self.sage_layers[i](x, edge_index)
-            if i != self.nb_layers - 1:
+            if i != self.num_layers - 1:
                 x = self.f(x)
                 x = self.drop(x)
             else:
@@ -174,8 +132,51 @@ class FCHCSAGE(nn.Module):
             constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
+# Define HCSAGE
+class HCFCSAGE(nn.Module):
+    def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
+        super(HCFCSAGE, self).__init__()
+        self.R = R
+        self.num_layers = num_layers
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
 
-############################################## FCHC-DNN ########################################################
+        sage_layers = []
+        for i in range(self.num_layers):
+            if i == 0:
+                sage_layers.append(SAGEConv(self.input_dim, self.hidden_dim))
+            elif i == self.num_layers - 1:
+                sage_layers.append(SAGEConv(self.hidden_dim, self.output_dim))
+            else:
+                sage_layers.append(SAGEConv(self.hidden_dim, self.hidden_dim))
+        self.sage_layers = nn.ModuleList(sage_layers)
+
+        self.drop = nn.Dropout(dropout)
+        self.sigmoid = nn.Sigmoid()
+        self.f = nn.ReLU()
+        self.reset_parameters()  # Initialize the weights
+
+    def reset_parameters(self):
+        for sage_layer in self.sage_layers:
+            sage_layer.reset_parameters()
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+        for i in range(self.num_layers):
+            x = self.sage_layers[i](x, edge_index)
+            if i != self.num_layers - 1:
+                x = self.f(x)
+                x = self.drop(x)
+            else:
+                x = self.sigmoid(x)
+        if self.training:
+            constrained_out = x
+        else:
+            constrained_out = get_constr_out(x, self.R)
+        return constrained_out
+
+# Define HCDNN
 class FullyConnectedLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
         super(FullyConnectedLayer, self).__init__()
@@ -189,27 +190,27 @@ class FullyConnectedLayer(nn.Module):
 
     def forward(self, x):
         return F.relu(self.fc(x))
-    
-class FCHCDNN(nn.Module):
-    def __init__(self,R):
-        super(FCHCDNN, self).__init__()
+
+class HCFCDNN(nn.Module):
+    def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
+        super(HCFCDNN, self).__init__()
         self.R = R
-        self.nb_layers = 2
-        self.hidden_dim = 128
-        self.input_dim = 12
-        self.output_dim= len(set(ATTRIBUTE_class.split(',')))+1  # We do not evaluate the performance of the model on the 'roots' node
+        self.num_layers = num_layers
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
 
         dnn_layers = []
-        for i in range(self.nb_layers):
+        for i in range(self.num_layers):
             if i == 0:
                 dnn_layers.append(FullyConnectedLayer(self.input_dim, self.hidden_dim))
-            elif i == self.nb_layers - 1:
+            elif i == self.num_layers - 1:
                 dnn_layers.append(FullyConnectedLayer(self.hidden_dim, self.output_dim))
             else:
                 dnn_layers.append(FullyConnectedLayer(self.hidden_dim, self.hidden_dim))
         self.dnn_layers = nn.ModuleList(dnn_layers)
 
-        self.drop = nn.Dropout(0.2)
+        self.drop = nn.Dropout(dropout)
         self.sigmoid = nn.Sigmoid()
         self.f = nn.ReLU()
         self.reset_parameters()  
@@ -219,23 +220,23 @@ class FCHCDNN(nn.Module):
             dnn_layer.reset_parameters()
 
     def forward(self, data):
-        x= data.x
-        for i in range(self.nb_layers):
+        x = data.x
+        for i in range(self.num_layers):
             x = self.dnn_layers[i](x)
-            if i != self.nb_layers - 1:
+            if i != self.num_layers - 1:
                 x = self.f(x)
                 x = self.drop(x)
-        x= self.sigmoid(x)
+        x = self.sigmoid(x)
         if self.training:
             constrained_out = x
         else:
-            constrained_out = get_constr_out(x, self.R ) 
+            constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-############################################## FCHC-GNN ########################################################
+# Define HCGNN
 class GNNLayer(MessagePassing):
     def __init__(self, input_dim, output_dim):
-        super(GNNLayer, self).__init__(aggr='add')  
+        super(GNNLayer, self).__init__(aggr='add')
         self.fc = nn.Linear(input_dim, output_dim)
         self.reset_parameters()  # Initialize the weights
 
@@ -243,15 +244,13 @@ class GNNLayer(MessagePassing):
         nn.init.xavier_uniform_(self.fc.weight)
         if self.fc.bias is not None:
             nn.init.zeros_(self.fc.bias)
-            
+
     def forward(self, x, edge_index):
-        # x: Node features, edge_index: Graph connectivity
         edge_index, _ = add_self_loops(edge_index, num_nodes=x.size(0))
         x = self.fc(x)
         return self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x)
 
     def message(self, x_j, edge_index, size):
-        # x_j: Input features of neighboring nodes
         row, col = edge_index
         deg = degree(row, size[0], dtype=x_j.dtype)
         deg_inv_sqrt = deg.pow(-0.5)
@@ -259,25 +258,25 @@ class GNNLayer(MessagePassing):
 
         return x_j * norm.view(-1, 1)
 
-class FCHCGNN(nn.Module):
-    def __init__(self,R):
-        super(FCHCGNN, self).__init__()
+class HCFCGNN(nn.Module):
+    def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
+        super(HCFCGNN, self).__init__()
         self.R = R
-        self.nb_layers = 2
-        self.hidden_dim = 32
-        self.input_dim = 12
-        self.output_dim= len(set(ATTRIBUTE_class.split(',')))+1  # We do not evaluate the performance of the model on the 'roots' node
+        self.num_layers = num_layers
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
 
         gnn_layers = []
-        for i in range(self.nb_layers):
+        for i in range(self.num_layers):
             if i == 0:
                 gnn_layers.append(GNNLayer(self.input_dim, self.hidden_dim))
-            elif i == self.nb_layers - 1:
+            elif i == self.num_layers - 1:
                 gnn_layers.append(GNNLayer(self.hidden_dim, self.output_dim))
             else:
                 gnn_layers.append(GNNLayer(self.hidden_dim, self.hidden_dim))
         self.gnn_layers = nn.ModuleList(gnn_layers)
-        self.drop = nn.Dropout(0.3)
+        self.drop = nn.Dropout(dropout)
         self.sigmoid = nn.Sigmoid()
         self.f = nn.ReLU()
         self.reset_parameters()  # Initialize the weights
@@ -287,40 +286,41 @@ class FCHCGNN(nn.Module):
             gnn_layer.reset_parameters()
 
     def forward(self, data):
-        x, edge_index= data.x, data.edge_index
-        for i in range(self.nb_layers):
+        x, edge_index = data.x, data.edge_index
+        for i in range(self.num_layers):
             x = self.gnn_layers[i](x, edge_index)
-            if i != self.nb_layers - 1:
+            if i != self.num_layers - 1:
                 x = self.f(x)
                 x = self.drop(x)
             else:
-                x= self.sigmoid(x)
+                x = self.sigmoid(x)
         if self.training:
             constrained_out = x
         else:
-            constrained_out = get_constr_out(x, self.R )
+            constrained_out = get_constr_out(x, self.R)
         return constrained_out
 
-############################################## FCHC-GCN ########################################################
-class FCHCGCN(nn.Module):
-    def __init__(self, R):
-        super(FCHCGCN, self).__init__()
+# Define HCGCN
+class HCFCGCN(nn.Module):
+    def __init__(self, R, input_dim, output_dim, hidden_dim, num_layers, dropout):
+        super(HCFCGCN, self).__init__()
         self.R = R
-        self.nb_layers = 2
-        self.hidden_dim = 64
-        self.input_dim = 12
-        self.output_dim = len(set(ATTRIBUTE_class.split(','))) + 1  # We do not evaluate the performance of the model on the 'roots' node
+        self.num_layers = num_layers
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+
         gcn_layers = []
-        for i in range(self.nb_layers):
+        for i in range(self.num_layers):
             if i == 0:
                 gcn_layers.append(GCNConv(self.input_dim, self.hidden_dim))
-            elif i == self.nb_layers - 1:
+            elif i == self.num_layers - 1:
                 gcn_layers.append(GCNConv(self.hidden_dim, self.output_dim))
             else:
                 gcn_layers.append(GCNConv(self.hidden_dim, self.hidden_dim))
         self.gcn_layers = nn.ModuleList(gcn_layers)
 
-        self.drop = nn.Dropout(0.2)
+        self.drop = nn.Dropout(dropout)
         self.sigmoid = nn.Sigmoid()
         self.f = nn.ReLU()
         self.reset_parameters()  # Initialize the weights
@@ -331,9 +331,9 @@ class FCHCGCN(nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
-        for i in range(self.nb_layers):
+        for i in range(self.num_layers):
             x = self.gcn_layers[i](x, edge_index)
-            if i != self.nb_layers - 1:
+            if i != self.num_layers - 1:
                 x = self.f(x)
                 x = self.drop(x)
             else:
@@ -342,4 +342,5 @@ class FCHCGCN(nn.Module):
             constrained_out = x
         else:
             constrained_out = get_constr_out(x, self.R)
-        return constrained_out    
+        return constrained_out
+############################################## FCHCGNN PLUG-IN MODULES ########################################################
