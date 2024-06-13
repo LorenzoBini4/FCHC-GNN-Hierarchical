@@ -11,7 +11,7 @@ from hc_model import *
 import seaborn as sns
 
 model = HCGAT(R)
-model.load_state_dict(torch.load('best_pt/best_gat.pt', map_location='cpu')) # if it has been saved on GPU
+model.load_state_dict(torch.load('best_pt/deep_FCHC-GAT.pt', map_location='cpu')) # if it has been saved on GPU
 model.eval()
 
 masked_graphs = torch.load(INPUT_GRAPH)
