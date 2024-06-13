@@ -11,10 +11,11 @@
 
 module load Anaconda3
 eval "$(conda shell.bash hook)"
-conda activate test_gpu
-nvidia-smi
+conda activate fchc-gnn
 
+###################################
 export CUDA_LAUNCH_BLOCKING=1
+nvidia-smi
 
 python -u hc_main.py --model FCHCGAT --num_layers 2 --hidden_features 32 --num_heads 2 --out_heads 2 --dropout 0.3 --start_lr 0.01 --max_num_epochs 200 --num_repetitions 2 --graph_path 'hc_graphs/HC7_graph.pt' 
 python -u hc_main.py --model FCHCSAGE --num_layers 2 --hidden_features 64 --dropout 0.3 --start_lr 0.01 --max_num_epochs 200 --num_repetitions 2 --graph_path 'hc_graphs/HC7_graph.pt' 
